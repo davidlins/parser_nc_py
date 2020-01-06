@@ -6,6 +6,9 @@ import tika
 tika.initVM()
 from tika import parser
 from re import sub
+import sys
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def handleValue(key, buf,nrValues):
@@ -64,7 +67,9 @@ def writeCSV(nrList,fileName):
         writer.writeheader()
         writer.writerows(nrList)
 
-
+def sortList(val):
+    dateSplit = val[DATA].split("/")
+    return dateSplit[2]+dateSplit[1]+dateSplit[0]
 
 NR_NOTA        = "Nr Nota"
 DATA           = "Data Pregão"
@@ -76,13 +81,24 @@ TX_BMF         = "Taxa BMF (emol+f.gar)"
 IRRF           = "IRRF Day Trade(Projeção)"
 TOTAL_LIQ_NOTA = "Total líquido da nota"
 
+
 nrList     = []
-dirName    = "/home/davidlins/Development/code/private/parser_nc_py/notas/"
+dirName    = sys.argv[1]
+if not dirName.endswith("/"):
+    dirName +="/"
+
+outputFileName = "ajustes.csv" 
 for root, dirs, files in os.walk(dirName):
     for filename in files:
         handleFile(dirName+filename,nrList)
+nrList.sort(key = sortList)
+writeCSV(nrList,outputFileName)
 
-writeCSV(nrList,"ajustes.csv")
+ajustes = pd.read_csv(outputFileName)
+ajustes.plot(x='Data Pregão',y='Total líquido da nota')
+
+plt.show()
+
 
 #for nrValues in nrList:
 #    print(nrValues)
