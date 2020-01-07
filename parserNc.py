@@ -9,7 +9,9 @@ from re import sub
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
+sns.set()
 
 def handleValue(key, buf,nrValues):
     if not  key in nrValues:
@@ -95,7 +97,11 @@ nrList.sort(key = sortList)
 writeCSV(nrList,outputFileName)
 
 ajustes = pd.read_csv(outputFileName)
-ajustes.plot(x='Data Pregão',y='Total líquido da nota')
+ajustes = ajustes.assign(ganhos=ajustes['Total líquido da nota'].cumsum())
+
+plt.plot('Data Pregão','ganhos',data=ajustes)
+plt.xticks(rotation=45)
+plt.title("Ganhos acumulados")
 
 plt.show()
 
